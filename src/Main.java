@@ -1,13 +1,72 @@
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-void main() {
-    //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-    // to see how IntelliJ IDEA suggests fixing it.
-    IO.println(String.format("Hello and welcome!"));
+import app.ApplicationContext;
+import command.Command;
+import command.CommandRegistry;
 
-    for (int i = 1; i <= 5; i++) {
-        //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-        // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-        IO.println("i = " + i);
-    }
+void main() {
+
+    ApplicationContext context =
+            new ApplicationContext();
+
+    CommandRegistry registry =
+            context.getRegistry();
+
+    Scanner scanner =
+            new Scanner(System.in);
+
+    IO.println(
+            "Bill Payment System Started"
+    );
+
+    while (!Thread.currentThread().isInterrupted())
+
+        try {
+
+            context.getScheduleService()
+                    .processSchedules(
+                            LocalDate.now()
+                    );
+
+            IO.print("> ");
+
+            String input =
+                    scanner.nextLine();
+
+            if (input == null ||
+                    input.isBlank()) {
+
+                continue;
+            }
+
+            String[] tokens =
+                    input.trim()
+                            .split("\\s+");
+
+            String commandName =
+                    tokens[0]
+                            .toUpperCase();
+
+            Command command =
+                    registry.get(
+                            commandName
+                    );
+
+            if (command == null) {
+
+                IO.println(
+                        "Unknown command."
+                );
+
+                continue;
+            }
+
+            command.execute(
+                    tokens
+            );
+
+        } catch (Exception ex) {
+
+            IO.println(
+                    ex.getMessage()
+            );
+        }
 }
